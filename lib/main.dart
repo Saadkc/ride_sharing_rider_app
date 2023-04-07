@@ -8,7 +8,6 @@ void main() async
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-
   runApp(
       MyApp(
           child: MaterialApp(
@@ -17,7 +16,6 @@ void main() async
               primarySwatch: Colors.blue,
             ),
             home: const MySplashScreen(),
-
             debugShowCheckedModeBanner: false,
           )
       )

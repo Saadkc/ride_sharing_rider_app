@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rider/authentication/signup_screen.dart';
 import 'package:rider/splashScreen/splash_screen.dart';
-
-
 import '../global/global.dart';
+import '../map/current_location.dart';
 import '../widgets/progress_dialog.dart';
 
 
@@ -17,9 +16,6 @@ class LoginScreen extends StatefulWidget
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
-
-
 
 class _LoginScreenState extends State<LoginScreen>
 {
@@ -140,10 +136,10 @@ class _LoginScreenState extends State<LoginScreen>
             TextField(
               controller: emailTextEditingController,
               keyboardType: TextInputType.emailAddress,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black,
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Email",
                 hintText: "Email",
                 enabledBorder: UnderlineInputBorder(
@@ -166,10 +162,10 @@ class _LoginScreenState extends State<LoginScreen>
               controller: passwordTextEditingController,
               keyboardType: TextInputType.text,
               obscureText: true,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black,
               ),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Password",
                 hintText: "Password",
                 enabledBorder: UnderlineInputBorder(
@@ -194,8 +190,8 @@ class _LoginScreenState extends State<LoginScreen>
             ElevatedButton(
               onPressed: ()
               {
-                validationForm();
-
+                // validationForm();
+                Navigator.push(context, MaterialPageRoute(builder: (c)=> const Current_location()));
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.orange,
@@ -205,18 +201,16 @@ class _LoginScreenState extends State<LoginScreen>
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: 18
-
-
                 ),
               ),
             ),
             TextButton(
-                child: Text(
+                child: const Text(
                     "Already have an Account? Login Here"
                 ),
               onPressed: ()
               {
-                Navigator.push(context, MaterialPageRoute(builder: (c)=> SignupScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (c)=> const SignupScreen()));
               },
             ),
 

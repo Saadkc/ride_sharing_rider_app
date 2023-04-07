@@ -41,7 +41,7 @@ onItemClicked(int index)
      body: TabBarView(
        physics: const NeverScrollableScrollPhysics(),
        controller: tabController,
-       children: [
+       children: const [
          HomeTabPage(),
          EarningTabPage(),
          RaitingsTabPage(),
