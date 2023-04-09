@@ -51,8 +51,6 @@ onItemClicked(int index)
        bottomNavigationBar:
        BottomNavigationBar(
          items: const [
-
-
            BottomNavigationBarItem(icon: Icon(Icons.home),
            label: "Home",
           ),

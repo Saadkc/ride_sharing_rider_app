@@ -6,10 +6,10 @@ import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rider/screens/ride/request_ride_screen.dart';
 
 import '../assistants/assistant_methods.dart';
 import '../global/global.dart';
-
 
 class HomeTabPage extends StatefulWidget {
   const HomeTabPage({Key? key}) : super(key: key);
@@ -18,10 +18,7 @@ class HomeTabPage extends StatefulWidget {
   _HomeTabPageState createState() => _HomeTabPageState();
 }
 
-
-
-class _HomeTabPageState extends State<HomeTabPage>
-{
+class _HomeTabPageState extends State<HomeTabPage> {
   GoogleMapController? newGoogleMapController;
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
 
@@ -38,12 +35,7 @@ class _HomeTabPageState extends State<HomeTabPage>
   Color buttonColor = Colors.grey;
   bool isDriverActive = false;
 
-
-
-
-
-  blackThemeGoogleMap()
-  {
+  blackThemeGoogleMap() {
     newGoogleMapController!.setMapStyle('''
                     [
                       {
@@ -209,34 +201,36 @@ class _HomeTabPageState extends State<HomeTabPage>
                 ''');
   }
 
-  checkIfLocationPermissionAllowed() async
-  {
+  checkIfLocationPermissionAllowed() async {
     _locationPermission = await Geolocator.requestPermission();
 
-    if(_locationPermission == LocationPermission.denied)
-    {
+    if (_locationPermission == LocationPermission.denied) {
       _locationPermission = await Geolocator.requestPermission();
     }
   }
 
-  locateDriverPosition() async
-  {
-    Position cPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  locateDriverPosition() async {
+    Position cPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     driverCurrentPosition = cPosition;
 
-    LatLng latLngPosition = LatLng(driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
+    LatLng latLngPosition = LatLng(
+        driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
 
-    CameraPosition cameraPosition = CameraPosition(target: latLngPosition, zoom: 14);
+    CameraPosition cameraPosition =
+        CameraPosition(target: latLngPosition, zoom: 14);
 
-    newGoogleMapController!.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    newGoogleMapController!
+        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
-    String humanReadableAddress = await AssistantMethods.searchAddressForGeographicCoOrdinates(driverCurrentPosition!, context);
+    String humanReadableAddress =
+        await AssistantMethods.searchAddressForGeographicCoOrdinates(
+            driverCurrentPosition!, context);
     print("this is your address = " + humanReadableAddress);
   }
 
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
 
     checkIfLocationPermissionAllowed();
@@ -250,8 +244,7 @@ class _HomeTabPageState extends State<HomeTabPage>
           mapType: MapType.normal,
           myLocationEnabled: true,
           initialCameraPosition: _kGooglePlex,
-          onMapCreated: (GoogleMapController controller)
-          {
+          onMapCreated: (GoogleMapController controller) {
             _controllerGoogleMap.complete(controller);
             newGoogleMapController = controller;
 
@@ -265,10 +258,10 @@ class _HomeTabPageState extends State<HomeTabPage>
         //ui for online offline driver
         statusText != "Now Online"
             ? Container(
-          height: MediaQuery.of(context).size.height,
-          width: double.infinity,
-          color: Colors.black87,
-        )
+                height: MediaQuery.of(context).size.height,
+                width: double.infinity,
+                color: Colors.black87,
+              )
             : Container(),
 
         //button for online offline driver
@@ -282,10 +275,9 @@ class _HomeTabPageState extends State<HomeTabPage>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: ()
-                {
-                  if(isDriverActive != true) //offline
-                      {
+                onPressed: () {
+                  if (isDriverActive != true) //offline
+                  {
                     driverIsOnlineNow();
                     updateDriversLocationAtRealTime();
 
@@ -297,9 +289,8 @@ class _HomeTabPageState extends State<HomeTabPage>
 
                     //display Toast
                     Fluttertoast.showToast(msg: "you are Online Now");
-                  }
-                  else //online
-                      {
+                  } else //online
+                  {
                     driverIsOfflineNow();
 
                     setState(() {
@@ -321,28 +312,88 @@ class _HomeTabPageState extends State<HomeTabPage>
                 ),
                 child: statusText != "Now Online"
                     ? Text(
-                  statusText,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                )
+                        statusText,
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      )
                     : const Icon(
-                  Icons.phonelink_ring,
-                  color: Colors.white,
-                  size: 26,
-                ),
+                        Icons.phonelink_ring,
+                        color: Colors.white,
+                        size: 26,
+                      ),
               ),
             ],
           ),
+        ),
+
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+              height: 100,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white,
+                    spreadRadius: 0.5,
+                    blurRadius: 16,
+                    offset: Offset(0.7, 0.7),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 36),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Status",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            statusText != "Now Online" ? statusText : "Now Online",
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          if(statusText != "Now Online"){
+                            Fluttertoast.showToast(msg: "you have to be Online first");
+                          }else{
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=> const RequestRide()));
+                          }
+                        }, child: const Text("Available Rides"))
+                  ],
+                ),
+              )),
         ),
       ],
     );
   }
 
-  driverIsOnlineNow() async
-  {
+  driverIsOnlineNow() async {
     Position pos = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
@@ -350,35 +401,27 @@ class _HomeTabPageState extends State<HomeTabPage>
 
     Geofire.initialize("activeDrivers");
 
-    Geofire.setLocation(
-        currentFirebaseUser!.uid,
-        driverCurrentPosition!.latitude,
-        driverCurrentPosition!.longitude
-    );
+    Geofire.setLocation(currentFirebaseUser!.uid,
+        driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
 
-    DatabaseReference ref = FirebaseDatabase.instance.ref()
+    DatabaseReference ref = FirebaseDatabase.instance
+        .ref()
         .child("drivers")
         .child(currentFirebaseUser!.uid)
         .child("newRideStatus");
 
     ref.set("idle"); //searching for ride request
-    ref.onValue.listen((event) { }); //accept or reject ride request
+    ref.onValue.listen((event) {}); //accept or reject ride request
   }
 
-  updateDriversLocationAtRealTime()
-  {
-    streamSubscriptionPosition = Geolocator.getPositionStream()
-        .listen((Position position)
-    {
+  updateDriversLocationAtRealTime() {
+    streamSubscriptionPosition =
+        Geolocator.getPositionStream().listen((Position position) {
       driverCurrentPosition = position;
 
-      if(isDriverActive == true)
-      {
-        Geofire.setLocation(
-            currentFirebaseUser!.uid,
-            driverCurrentPosition!.latitude,
-            driverCurrentPosition!.longitude
-        );
+      if (isDriverActive == true) {
+        Geofire.setLocation(currentFirebaseUser!.uid,
+            driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
       }
 
       LatLng latLng = LatLng(
@@ -390,11 +433,11 @@ class _HomeTabPageState extends State<HomeTabPage>
     });
   }
 
-  driverIsOfflineNow()
-  {
+  driverIsOfflineNow() {
     Geofire.removeLocation(currentFirebaseUser!.uid);
 
-    DatabaseReference? ref = FirebaseDatabase.instance.ref()
+    DatabaseReference? ref = FirebaseDatabase.instance
+        .ref()
         .child("drivers")
         .child(currentFirebaseUser!.uid)
         .child("newRideStatus");
@@ -402,10 +445,10 @@ class _HomeTabPageState extends State<HomeTabPage>
     ref.remove();
     ref = null;
 
-    Future.delayed(const Duration(milliseconds: 2000), ()
-    {
+    Future.delayed(const Duration(milliseconds: 2000), () {
       //SystemChannels.platform.invokeMethod("SystemNavigator.pop");
       SystemNavigator.pop();
     });
   }
 }
+
