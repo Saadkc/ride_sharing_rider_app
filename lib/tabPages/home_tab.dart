@@ -367,7 +367,9 @@ class _HomeTabPageState extends State<HomeTabPage> {
                             ),
                           ),
                           Text(
-                            statusText != "Now Online" ? statusText : "Now Online",
+                            statusText != "Now Online"
+                                ? statusText
+                                : "Now Online",
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -379,12 +381,17 @@ class _HomeTabPageState extends State<HomeTabPage> {
                     ),
                     ElevatedButton(
                         onPressed: () {
-                          if(statusText != "Now Online"){
-                            Fluttertoast.showToast(msg: "you have to be Online first");
-                          }else{
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=> const RequestRide()));
+                          if (statusText != "Now Online") {
+                            Fluttertoast.showToast(
+                                msg: "you have to be Online first");
+                          } else {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const RequestRide()));
                           }
-                        }, child: const Text("Available Rides"))
+                        },
+                        child: const Text("Available Rides"))
                   ],
                 ),
               )),
@@ -409,6 +416,12 @@ class _HomeTabPageState extends State<HomeTabPage> {
         .child("drivers")
         .child(currentFirebaseUser!.uid)
         .child("newRideStatus");
+
+    FirebaseDatabase.instance.ref().child("activeDrivers").set({
+      "latitude": driverCurrentPosition!.latitude,
+      "longitude": driverCurrentPosition!.longitude,
+      "user_id": currentFirebaseUser!.uid
+    });
 
     ref.set("idle"); //searching for ride request
     ref.onValue.listen((event) {}); //accept or reject ride request
@@ -451,4 +464,3 @@ class _HomeTabPageState extends State<HomeTabPage> {
     });
   }
 }
-

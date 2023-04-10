@@ -6,6 +6,7 @@ import 'package:rider/authentication/signup_screen.dart';
 import 'package:rider/splashScreen/splash_screen.dart';
 import '../global/global.dart';
 import '../map/current_location.dart';
+import '../screens/mainScreens/main_screen.dart';
 import '../widgets/progress_dialog.dart';
 
 
@@ -190,8 +191,8 @@ class _LoginScreenState extends State<LoginScreen>
             ElevatedButton(
               onPressed: ()
               {
-                // validationForm();
-                Navigator.push(context, MaterialPageRoute(builder: (c)=> const Current_location()));
+                validationForm();
+                // Navigator.push(context, MaterialPageRoute(builder: (c)=> const MainScreen()));
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.orange,
