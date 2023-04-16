@@ -40,7 +40,7 @@ class _SignupScreenState extends State<SignupScreen> {
           email: emailTextEditingController.text.trim(),
         password: passwordTextEditingController.text.trim(),
       ).catchError((msg){
-        Navigator.pop(context);
+        // Navigator.pop(context);
         Fluttertoast.showToast(msg: "Error: " + msg.toString());
       })
       ).user;

@@ -54,9 +54,9 @@ class _Current_locationState extends State<Current_location> {
             print(value.latitude.toString()+""+value.longitude.toString());
             _markers.add(
               Marker(
-                  markerId: MarkerId('2'),
+                  markerId: const MarkerId('2'),
                 position: LatLng(value.latitude, value.longitude),
-                infoWindow: InfoWindow(
+                infoWindow: const InfoWindow(
                   title: 'MY CURRENT LOCATION'
                 )
               )
@@ -64,7 +64,7 @@ class _Current_locationState extends State<Current_location> {
           });
 
         },
-        child: Icon(Icons.local_activity),
+        child: const Icon(Icons.local_activity),
       ),
     );
   }
