@@ -23,7 +23,8 @@ class AssistantMethods
 
     if(requestResponse != "Error Occurred, Failed. No Response.")
     {
-      humanReadableAddress = requestResponse["results"][0]["formatted_address"];
+      print(requestResponse);
+      humanReadableAddress = requestResponse["results"] == [] ? "" : requestResponse["results"][0]["formatted_address"];
 
       Directions userPickUpAddress = Directions();
       userPickUpAddress.locationLatitude = position.latitude;
