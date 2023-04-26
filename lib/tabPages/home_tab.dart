@@ -7,6 +7,7 @@ import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart' as loc;
 import 'package:rider/screens/ride/request_ride_screen.dart';
 
 import '../assistants/assistant_methods.dart';
@@ -22,6 +23,7 @@ class HomeTabPage extends StatefulWidget {
 class _HomeTabPageState extends State<HomeTabPage> {
   GoogleMapController? newGoogleMapController;
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
+  loc.Location location = loc.Location();
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -35,6 +37,30 @@ class _HomeTabPageState extends State<HomeTabPage> {
   String statusText = "Now Offline";
   Color buttonColor = Colors.grey;
   bool isDriverActive = false;
+
+  void getLocation() async {
+    bool _serviceEnabled;
+    loc.PermissionStatus _permissionGranted;
+    loc.LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == loc.PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != loc.PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+  }
 
   blackThemeGoogleMap() {
     newGoogleMapController!.setMapStyle('''
@@ -231,8 +257,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
   @override
   void initState() {
     super.initState();
-
-    checkIfLocationPermissionAllowed();
+    getLocation();
+    // checkIfLocationPermissionAllowed();
   }
 
   @override
@@ -398,26 +424,23 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   driverIsOnlineNow() async {
-    Position pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    driverCurrentPosition = pos;
-    print(driverCurrentPosition);
-    print(currentFirebaseUser);
 
-    // Geofire.initialize("activeDrivers");
+    DatabaseReference ref = FirebaseDatabase.instance
+        .ref()
+        .child('activeDrivers')
+        .child(currentFirebaseUser!.uid);
 
-    // Geofire.setLocation(currentFirebaseUser!.uid,
-    //     driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
-    
-    DatabaseReference ref = FirebaseDatabase.instance.ref().child('activeDrivers').child(currentFirebaseUser!.uid);
+   
+    location.onLocationChanged.listen((loc.LocationData currentLocation) {
+      ref.set({
+        "latitude": currentLocation.latitude,
+        "longitude": currentLocation.longitude,
+      }).catchError((err) {
+        log(err);
+      });
+    });
 
-    ref.set({
-      "latitude": driverCurrentPosition!.latitude,
-      "longitude": driverCurrentPosition!.longitude,
-    }).catchError((err) {
-      log(err);
-    }); //searching for ride request
+    //searching for ride request
     // ref.onValue.listen((event) {}); //accept or reject ride request
   }
 
@@ -440,7 +463,18 @@ class _HomeTabPageState extends State<HomeTabPage> {
     });
   }
 
-  driverIsOfflineNow() {
+  driverIsOfflineNow() async {
+    // Geofire.initialize("activeDrivers");
+
+    // Geofire.setLocation(currentFirebaseUser!.uid,
+    //     driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
+
+    await FirebaseDatabase.instance
+        .ref()
+        .child('activeDrivers')
+        .child(currentFirebaseUser!.uid)
+        .remove();
+
     // Geofire.removeLocation(currentFirebaseUser!.uid);
 
     // DatabaseReference? ref = FirebaseDatabase.instance
@@ -451,9 +485,9 @@ class _HomeTabPageState extends State<HomeTabPage> {
     // ref.remove();
     // ref = null;
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      //SystemChannels.platform.invokeMethod("SystemNavigator.pop");
-      SystemNavigator.pop();
-    });
+    // Future.delayed(const Duration(milliseconds: 2000), () {
+    //   //SystemChannels.platform.invokeMethod("SystemNavigator.pop");
+    //   SystemNavigator.pop();
+    // });
   }
 }
