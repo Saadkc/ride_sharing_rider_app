@@ -277,7 +277,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
             locateDriverPosition();
           },
         ),
-
+    
         //ui for online offline driver
         statusText != "Now Online"
             ? Container(
@@ -286,7 +286,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
                 color: Colors.black87,
               )
             : Container(),
-
+    
         //button for online offline driver
         Positioned(
           top: statusText != "Now Online"
@@ -303,25 +303,25 @@ class _HomeTabPageState extends State<HomeTabPage> {
                   {
                     driverIsOnlineNow();
                     // updateDriversLocationAtRealTime();
-
+    
                     setState(() {
                       statusText = "Now Online";
                       isDriverActive = true;
                       buttonColor = Colors.transparent;
                     });
-
+    
                     //display Toast
                     Fluttertoast.showToast(msg: "you are Online Now");
                   } else //online
                   {
                     driverIsOfflineNow();
-
+    
                     setState(() {
                       statusText = "Now Offline";
                       isDriverActive = false;
                       buttonColor = Colors.grey;
                     });
-
+    
                     //display Toast
                     Fluttertoast.showToast(msg: "you are Offline Now");
                   }
@@ -351,7 +351,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
             ],
           ),
         ),
-
+    
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:rider/screens/ride/ride_start_screen.dart';
 
 class RequestRide extends StatefulWidget {
   const RequestRide({super.key});
@@ -51,9 +52,14 @@ class _RequestRideState extends State<RequestRide> {
                                     .ref()
                                     .child("requestRides")
                                     .child(data.keys.elementAt(index))
-                                    .update({"status": "accepted"}).then(
-                                        (value) => Fluttertoast.showToast(
-                                            msg: "Ride Accepted"));
+                                    .update({"status": "accepted"})
+                                    .then((value) => Fluttertoast.showToast(
+                                        msg: "Ride Accepted"))
+                                    .then((value) => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const RideStartScreen())));
                               },
                               child: const Text("Accept")),
                           const SizedBox(
@@ -68,6 +74,12 @@ class _RequestRideState extends State<RequestRide> {
                                     .update({"status": "Rejected"}).then(
                                         (value) => Fluttertoast.showToast(
                                             msg: "Ride Rejected"));
+
+                                FirebaseDatabase.instance
+                                    .ref()
+                                    .child("requestRides")
+                                    .child(data.keys.elementAt(index))
+                                    .remove();
                               },
                               child: const Text("Reject")),
                         ],
