@@ -227,7 +227,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
                     ]
                 ''');
   }
-
   checkIfLocationPermissionAllowed() async {
     _locationPermission = await Geolocator.requestPermission();
 
