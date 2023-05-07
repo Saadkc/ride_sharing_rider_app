@@ -40,9 +40,9 @@ class _RequestRideState extends State<RequestRide> {
                   return Card(
                     child: ListTile(
                       title: Text(
-                          "Name: ${data.values.elementAt(index)['name'].toString()}"),
+                          "Name: ${data.values.elementAt(index)['passenger_name'].toString()}"),
                       subtitle: Text(
-                          "Phone : ${data.values.elementAt(index)['phone'].toString()}"),
+                          "Phone : ${data.values.elementAt(index)['passenger_phone'].toString()}"),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -59,7 +59,9 @@ class _RequestRideState extends State<RequestRide> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const RideStartScreen())));
+                                                RideStartScreen(
+                                                  data: data.values.elementAt(index),
+                                                ))));
                               },
                               child: const Text("Accept")),
                           const SizedBox(

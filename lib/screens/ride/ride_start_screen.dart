@@ -6,9 +6,11 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../widgets/custom_text_field.dart';
+import 'end_ride.dart';
 
 class RideStartScreen extends StatefulWidget {
-  const RideStartScreen({super.key});
+  final Map data;
+  const RideStartScreen({super.key, required this.data});
 
   @override
   State<RideStartScreen> createState() => _RideStartScreenState();
@@ -222,20 +224,20 @@ class _RideStartScreenState extends State<RideStartScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    height: size.height * 0.06,
-                    decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(18),
-                            topRight: Radius.circular(18))),
-                    child: const Center(
-                      child: Text(
-                        'Your Current Ride(1)',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   height: size.height * 0.06,
+                  //   decoration: const BoxDecoration(
+                  //       color: Colors.blue,
+                  //       borderRadius: BorderRadius.only(
+                  //           topLeft: Radius.circular(18),
+                  //           topRight: Radius.circular(18))),
+                  //   child: const Center(
+                  //     child: Text(
+                  //       'Your Current Ride(1)',
+                  //       style: TextStyle(color: Colors.white),
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(
                     height: size.height * 0.015,
                   ),
@@ -243,35 +245,35 @@ class _RideStartScreenState extends State<RideStartScreen> {
                     padding:
                         EdgeInsets.symmetric(horizontal: size.width * 0.06),
                     child: const Text(
-                      'Your Current Ride',
+                      'Your Current Ride Started',
                       style: TextStyle(color: Colors.black, fontSize: 16),
                     ),
                   ),
                   SizedBox(
                     height: size.height * 0.02,
                   ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                    child: CustomTextFieldd(
-                      prefixIcon: const Icon(
-                        Icons.location_on_sharp,
-                        color: Colors.green,
-                      ),
-                      ab: false,
-                      controller: controller,
-                      text: 'Karachi, Defence Phase 8',
-                    ),
-                  ),
+                  // Padding(
+                  //   padding:
+                  //       EdgeInsets.symmetric(horizontal: size.width * 0.06),
+                  //   child: CustomTextFieldd(
+                  //     prefixIcon: const Icon(
+                  //       Icons.location_on_sharp,
+                  //       color: Colors.green,
+                  //     ),
+                  //     ab: false,
+                  //     controller: controller,
+                  //     text: 'Karachi, Defence Phase 8',
+                  //   ),
+                  // ),
                   SizedBox(
-                    height: size.height * 0.015,
+                    height: size.height * 0.05,
                   ),
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: size.width * 0.06),
                     child: Container(
                       decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 52, 46, 46),
+                          color: const Color.fromARGB(255, 52, 46, 46),
                           borderRadius: BorderRadius.circular(18)),
                       height: size.height * 0.21,
                       width: double.infinity,
@@ -283,59 +285,38 @@ class _RideStartScreenState extends State<RideStartScreen> {
                               height: size.height * 0.014,
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Container(
-                                  width: size.width * 0.2,
-                                  // color: Colors.grey,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: const [
-                                      Icon(
-                                        Icons.phone,
-                                        color: Colors.green,
-                                        size: 20,
-                                      ),
-                                      CircleAvatar(
-                                          radius: 20,
-                                          backgroundImage: AssetImage(
-                                              'assets/images/map.PNG')),
-                                    ],
-                                  ),
+                                // const SizedBox(
+                                //   child: CircleAvatar(
+                                //       radius: 15,
+                                //       backgroundImage:
+                                //           AssetImage('assets/images/map.PNG')),
+                                // ),
+                                const SizedBox(
+                                  width: 20,
                                 ),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
+                                  children: [
                                     Text(
-                                      'Shehroz',
-                                      style: TextStyle(
+                                      widget.data['passenger_name'].toString(),
+                                      style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     Text(
-                                      '0313033445',
-                                      style: TextStyle(
+                                      widget.data['passenger_phone'].toString(),
+                                      style: const TextStyle(
                                           color: Colors.grey, fontSize: 12),
                                     ),
                                   ],
                                 ),
-                                Container(
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.white, width: 1)),
-                                  child: const Center(
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 20),
-                                      child: Text(
-                                        "\$300",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
+                                const Spacer(),
+                                const Icon(Icons.phone, color: Colors.green),
+                                SizedBox(
+                                  width: size.width * 0.04,
                                 ),
                               ],
                             ),
@@ -349,7 +330,7 @@ class _RideStartScreenState extends State<RideStartScreen> {
                               controller: controller,
                               text: 'Karachi, Defence Phase 8',
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             CustomTextFieldd(
@@ -368,25 +349,33 @@ class _RideStartScreenState extends State<RideStartScreen> {
                     ),
                   ),
                   SizedBox(
-                    height: size.height * 0.02,
+                    height: size.height * 0.06,
                   ),
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                    child: Container(
-                      height: size.height * 0.05,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.blue,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Start Your Trip ",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const EndRide()));
+                      },
+                      child: Container(
+                        height: size.height * 0.05,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.blue,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "End your Ride",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
