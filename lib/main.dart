@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:rider/screens/mainScreens/main_screen.dart';
+import 'package:rider/screens/rate/rate.dart';
 import 'package:rider/screens/ride/ride_start_screen.dart';
 import 'package:rider/splashScreen/splash_screen.dart';
 import 'firebase_options.dart';
+import 'invoice screen/invoice.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

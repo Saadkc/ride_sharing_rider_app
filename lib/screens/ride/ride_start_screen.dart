@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/custom_text_field.dart';
 
@@ -291,11 +292,23 @@ class _RideStartScreenState extends State<RideStartScreen> {
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
-                                    children: const [
-                                      Icon(
-                                        Icons.phone,
-                                        color: Colors.green,
-                                        size: 20,
+                                    children: [
+                                      InkWell(
+                                        onTap: () async {
+                                          final Uri url = Uri(
+                                              scheme: 'tel',
+                                              path: '24234 3545');
+                                          if (await canLaunchUrl(url)) {
+                                            await launchUrl(url);
+                                          } else {
+                                            print('Can not Launch this Url');
+                                          }
+                                        },
+                                        child: Icon(
+                                          Icons.phone,
+                                          color: Colors.green,
+                                          size: 20,
+                                        ),
                                       ),
                                       CircleAvatar(
                                           radius: 20,

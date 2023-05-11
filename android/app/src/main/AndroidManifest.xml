@@ -38,4 +38,17 @@
            android:value="AIzaSyAk-ysCirVaLja0FPnaoyWgsrUp8gVwLzk"/>
        <!-- android:value="AIzaSyB3t1foGvWBpcr327IPjY-0x0pw70jF4HA"/> -->
     </application>
+    <!-- Provide required visibility configuration for API level 30 and above -->
+<queries>
+  <!-- If your app checks for SMS support -->
+  <intent>
+    <action android:name="android.intent.action.VIEW" />
+    <data android:scheme="sms" />
+  </intent>
+  <!-- If your app checks for call support -->
+  <intent>
+    <action android:name="android.intent.action.VIEW" />
+    <data android:scheme="tel" />
+  </intent>
+</queries>
 </manifest>
