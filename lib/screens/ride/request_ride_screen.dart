@@ -53,15 +53,17 @@ class _RequestRideState extends State<RequestRide> {
                           ElevatedButton(
                               onPressed: () async {
                                 User user = FirebaseAuth.instance.currentUser!;
-                               
-                              
+
                                 FirebaseDatabase.instance
                                     .ref()
                                     .child("requestRides")
                                     .child(data.keys.elementAt(index))
                                     .update({
                                       "status": "accepted",
-                                      "driver_id": user.uid
+                                      "driver_id": user.uid,
+                                      "driver_name": userModelCurrentInfo!.name,
+                                      "driver_phone":
+                                          userModelCurrentInfo!.phone,
                                     })
                                     .then((value) => Fluttertoast.showToast(
                                         msg: "Ride Accepted"))
