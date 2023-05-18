@@ -1,11 +1,15 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import '../../assistants/assistant_methods.dart';
+import '../../global/global.dart';
 import '../../models/active_nearby_drivers.dart';
 import 'end_ride.dart';
 
@@ -390,10 +394,22 @@ class _RideStartScreenState extends State<RideStartScreen> {
                             const SizedBox(height: 20.0),
                             InkWell(
                               onTap: () {
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const EndRide()));
+                                User user = FirebaseAuth.instance.currentUser!;
+
+                                FirebaseDatabase.instance
+                                    .ref()
+                                    .child("requestRides")
+                                    .child(widget.data["user_id"])
+                                    .update({
+                                      "status": "completed",
+                                    })
+                                    .then((value) => Fluttertoast.showToast(
+                                        msg: "Ride Completed"))
+                                    .then((value) => Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const EndRide())));
                               },
                               child: Container(
                                 height: 40,
