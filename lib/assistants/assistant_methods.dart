@@ -40,7 +40,7 @@ class AssistantMethods
   static void readCurrentOnlineUserInfo() async
   {
     currentFirebaseUser = fAuth.currentUser;
-
+  
     DatabaseReference userRef = FirebaseDatabase.instance
         .ref()
         .child("users")

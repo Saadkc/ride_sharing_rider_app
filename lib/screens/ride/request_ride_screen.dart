@@ -1,9 +1,13 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rider/screens/ride/ride_start_screen.dart';
+
+import '../../global/global.dart';
+import '../../models/user_model.dart';
 
 class RequestRide extends StatefulWidget {
   const RequestRide({super.key});
@@ -47,12 +51,18 @@ class _RequestRideState extends State<RequestRide> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
+                                User user = FirebaseAuth.instance.currentUser!;
+                               
+                              
                                 FirebaseDatabase.instance
                                     .ref()
                                     .child("requestRides")
                                     .child(data.keys.elementAt(index))
-                                    .update({"status": "accepted"})
+                                    .update({
+                                      "status": "accepted",
+                                      "driver_id": user.uid
+                                    })
                                     .then((value) => Fluttertoast.showToast(
                                         msg: "Ride Accepted"))
                                     .then((value) => Navigator.push(
@@ -60,7 +70,8 @@ class _RequestRideState extends State<RequestRide> {
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 RideStartScreen(
-                                                  data: data.values.elementAt(index),
+                                                  data: data.values
+                                                      .elementAt(index),
                                                 ))));
                               },
                               child: const Text("Accept")),

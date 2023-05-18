@@ -5,6 +5,8 @@ import 'package:rider/authentication/login_screen.dart';
 import 'package:rider/global/global.dart';
 import 'package:rider/screens/mainScreens/main_screen.dart';
 
+import '../assistants/assistant_methods.dart';
+
 class MySplashScreen extends StatefulWidget {
   const MySplashScreen({Key? key}) : super(key: key);
 
@@ -14,6 +16,7 @@ class MySplashScreen extends StatefulWidget {
 
 class _MySplashScreenState extends State<MySplashScreen> {
   startTimer() {
+    fAuth.currentUser!= null ?  AssistantMethods.readCurrentOnlineUserInfo() : null;
     Timer(const Duration(seconds: 5), () async {
       if (fAuth.currentUser != null) {
         currentFirebaseUser = fAuth.currentUser;

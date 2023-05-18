@@ -1,11 +1,19 @@
 import 'dart:async';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:rider/global/global.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import '../../assistants/assistant_methods.dart';
+import '../../info handler/app_info.dart';
+import '../../models/active_nearby_drivers.dart';
 import '../../widgets/custom_text_field.dart';
 import 'end_ride.dart';
 
@@ -24,6 +32,58 @@ class _RideStartScreenState extends State<RideStartScreen> {
   TextEditingController controller = TextEditingController();
   static final CameraPosition _kGooglePlex =
       CameraPosition(target: LatLng(37.444444, 42.00043434), zoom: 14.4746);
+
+  double searchLocationContainerHeight = 220;
+  double bottomPaddingOfMap = 0;
+  CameraPosition? _initialPosition;
+  Position? userCurrentPosition;
+  String userName = "your Name";
+  String userEmail = "your Email";
+  Set<Polyline> polyLineSet = {};
+  Set<Marker> markersSet = {};
+  Set<Circle> circlesSet = {};
+  final Completer<GoogleMapController> _controllerGoogleMap = Completer();
+  Map data = {};
+  List<LatLng> pLineCoOrdinatesList = [];
+
+  bool openNavigationDrawer = true;
+
+  bool activeNearbyDriverKeysLoaded = false;
+  BitmapDescriptor? activeNearbyIcon;
+
+  void callNumber(String phoneNumber) async {
+    String number = phoneNumber; //set the number here
+    await FlutterPhoneDirectCaller.callNumber(number);
+  }
+
+  locateUserPosition() async {
+    Position cPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    userCurrentPosition = cPosition;
+
+    LatLng latLngPosition =
+        LatLng(userCurrentPosition!.latitude, userCurrentPosition!.longitude);
+
+    CameraPosition cameraPosition =
+        CameraPosition(target: latLngPosition, zoom: 14);
+
+    String humanReadableAddress =
+        await AssistantMethods.searchAddressForGeographicCoOrdinates(
+            userCurrentPosition!, context);
+    print("this is your address = " + humanReadableAddress);
+
+   print("Works");
+
+    setState(() {
+      _initialPosition = cameraPosition;
+    });
+  }
+
+  @override
+  void initState() {
+    locateUserPosition();
+    super.initState();
+  }
 
   blackThemeGoogleMap() {
     newGoogleMapController!.setMapStyle('''
@@ -194,221 +254,353 @@ class _RideStartScreenState extends State<RideStartScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return SafeArea(
-      child: Scaffold(
-        body: Column(
-          children: [
-            Column(
-              children: [
-                Container(
-                    width: double.infinity,
-                    height: size.height * 0.45,
-                    color: Colors.black,
-                    child: GoogleMap(
-                      initialCameraPosition: _kGooglePlex,
-                      onMapCreated: (GoogleMapController controller) {
-                        _controller.complete(controller);
-                        newGoogleMapController = controller;
+    return Scaffold(
+      body: _initialPosition == null
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : StreamBuilder<dynamic>(
+              stream: FirebaseDatabase.instance
+                  .ref()
+                  .child("requestRides")
+                  .child(fAuth.currentUser!.uid)
+                  .onValue,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-                        blackThemeGoogleMap();
-                      },
-                    )),
-              ],
-            ),
-            Container(
-              height: size.height * 0.49,
-              decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 217, 223, 228),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(18),
-                      topRight: Radius.circular(18))),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Container(
-                  //   height: size.height * 0.06,
-                  //   decoration: const BoxDecoration(
-                  //       color: Colors.blue,
-                  //       borderRadius: BorderRadius.only(
-                  //           topLeft: Radius.circular(18),
-                  //           topRight: Radius.circular(18))),
-                  //   child: const Center(
-                  //     child: Text(
-                  //       'Your Current Ride(1)',
-                  //       style: TextStyle(color: Colors.white),
-                  //     ),
-                  //   ),
-                  // ),
-                  SizedBox(
-                    height: size.height * 0.015,
+                data = snapshot.data.snapshot.value;
+
+                return Stack(children: [
+                  GoogleMap(
+                    padding: EdgeInsets.only(bottom: bottomPaddingOfMap),
+
+                    mapType: MapType.normal,
+                    myLocationEnabled: true,
+                    zoomGesturesEnabled: true,
+                    zoomControlsEnabled: true,
+                    initialCameraPosition: _initialPosition!,
+                    polylines: polyLineSet,
+                    // markers: markers,
+                    markers: Set.from(markersSet),
+                    circles: circlesSet,
+                    onMapCreated: (GoogleMapController controller) async {
+                      _controllerGoogleMap.complete(controller);
+                      newGoogleMapController = controller;
+                      // await drawPolyLineFromOriginToDestination();
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        // controller.animateCamera(CameraUpdate.newLatLngBounds(
+                        //     MapUtils.boundsFromLatLngList(
+                        //         markersSet.map((loc) => loc.position).toList()),
+                        //     1));
+                      });
+                      blackThemeGoogleMap();
+
+                      setState(() {
+                        bottomPaddingOfMap = 240;
+                      });
+
+                      // displayActiveDriversOnUsersMap(drivers);
+                    },
                   ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                    child: const Text(
-                      'Your Current Ride Started',
-                      style: TextStyle(color: Colors.black, fontSize: 16),
-                    ),
-                  ),
-                  SizedBox(
-                    height: size.height * 0.02,
-                  ),
-                  // Padding(
-                  //   padding:
-                  //       EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                  //   child: CustomTextFieldd(
-                  //     prefixIcon: const Icon(
-                  //       Icons.location_on_sharp,
-                  //       color: Colors.green,
-                  //     ),
-                  //     ab: false,
-                  //     controller: controller,
-                  //     text: 'Karachi, Defence Phase 8',
-                  //   ),
-                  // ),
-                  SizedBox(
-                    height: size.height * 0.05,
-                  ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 52, 46, 46),
-                          borderRadius: BorderRadius.circular(18)),
-                      height: size.height * 0.21,
-                      width: double.infinity,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: size.height * 0.014,
+
+                  //custom hamburger button for drawer
+
+                  //ui for searching location
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: AnimatedSize(
+                        curve: Curves.easeIn,
+                        duration: const Duration(milliseconds: 120),
+                        child: Container(
+                          height: searchLocationContainerHeight,
+                          decoration: const BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(20),
+                              topLeft: Radius.circular(20),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 18),
+                            child: Column(
                               children: [
-                                Container(
-                                  width: size.width * 0.2,
-                                  // color: Colors.grey,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      InkWell(
-                                        onTap: () async {
-                                          final Uri url = Uri(
-                                              scheme: 'tel',
-                                              path: '24234 3545');
-                                          if (await canLaunchUrl(url)) {
-                                            await launchUrl(url);
-                                          } else {
-                                            print('Can not Launch this Url');
-                                          }
+                                const SizedBox(
+                                  height: 5,
+                                ),
+
+                                //from
+                                Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Driver Name: ${data["passenger_name"]}",
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 12),
+                                        ),
+                                        Text(
+                                          "Driver Phone: ${data["passenger_phone"]}",
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 14),
+                                        ),
+                                      ],
+                                    ),
+                                    const Spacer(),
+                                    GestureDetector(
+                                        onTap: () {
+                                          callNumber(data["passenger_phone"]);
                                         },
-                                        child: Icon(
-                                          Icons.phone,
-                                          color: Colors.green,
-                                          size: 20,
+                                        child: const Icon(Icons.call,
+                                            color: Colors.green))
+                                  ],
+                                ),
+
+                                const SizedBox(height: 20.0),
+
+                                Container(
+                                  height: 100,
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[700],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      const SizedBox(height: 15.0),
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 10.0),
+                                          const Icon(
+                                            Icons.location_on,
+                                            color: Colors.green,
+                                          ),
+                                          const SizedBox(width: 10.0),
+                                          Expanded(
+                                            child: Text(
+                                              "from: ${data["pickupLocation"]}",
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5.0),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 40),
+                                        child: Divider(
+                                          color: Colors.white,
+                                          height: 1,
                                         ),
                                       ),
-                                      CircleAvatar(
-                                          radius: 20,
-                                          backgroundImage: AssetImage(
-                                              'assets/images/map.PNG')),
+                                      const SizedBox(height: 15.0),
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 10.0),
+                                          const Icon(
+                                            Icons.location_on,
+                                            color: Colors.green,
+                                          ),
+                                          const SizedBox(width: 10.0),
+                                          Expanded(
+                                            child: Text(
+                                              "To: ${data["dropOffLocation"]}",
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5.0),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 40),
+                                        child: Divider(
+                                          color: Colors.white,
+                                          height: 1,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      widget.data['passenger_name'].toString(),
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      widget.data['passenger_phone'].toString(),
-                                      style: const TextStyle(
-                                          color: Colors.grey, fontSize: 12),
-                                    ),
-                                  ],
-                                ),
-                                const Spacer(),
-                                const Icon(Icons.phone, color: Colors.green),
-                                SizedBox(
-                                  width: size.width * 0.04,
-                                ),
                               ],
                             ),
-                            CustomTextFieldd(
-                              prefixIcon: const Icon(
-                                Icons.circle,
-                                color: Colors.green,
-                                size: 20,
-                              ),
-                              ab: false,
-                              controller: controller,
-                              text: 'Karachi, Defence Phase 8',
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            CustomTextFieldd(
-                              prefixIcon: const Icon(
-                                Icons.circle,
-                                size: 20,
-                                color: Colors.blue,
-                              ),
-                              ab: false,
-                              controller: controller,
-                              text: 'Karachi, Defence Phase 8',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: size.height * 0.06,
-                  ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: size.width * 0.06),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const EndRide()));
-                      },
-                      child: Container(
-                        height: size.height * 0.05,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.blue,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            "End your Ride",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      ),
-                    ),
+                        )),
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
+                ]);
+              }),
+    );
+  }
+
+  Future<void> drawPolyLineFromOriginToDestination() async {
+    var originPosition =
+        Provider.of<AppInfo>(context, listen: false).userPickUpLocation;
+    var destinationPosition =
+        Provider.of<AppInfo>(context, listen: false).userDropOffLocation;
+
+    var originLatLng = LatLng(
+        originPosition!.locationLatitude!, originPosition.locationLongitude!);
+    var destinationLatLng = LatLng(destinationPosition!.locationLatitude!,
+        destinationPosition.locationLongitude!);
+
+    List<ActiveNearbyAvailableDrivers> drivers = [];
+
+    drivers.add(
+      ActiveNearbyAvailableDrivers(
+        driverId: "",
+        locationLatitude: destinationLatLng.latitude,
+        locationLongitude: destinationLatLng.longitude,
       ),
     );
+
+    drivers.add(
+      ActiveNearbyAvailableDrivers(
+        driverId: "",
+        locationLatitude: originLatLng.latitude,
+        locationLongitude: originLatLng.longitude,
+      ),
+    );
+
+    displayActiveDriversOnUsersMap(drivers);
+
+    var directionDetailsInfo =
+        await AssistantMethods.obtainOriginToDestinationDirectionDetails(
+            originLatLng, destinationLatLng);
+
+    PolylinePoints pPoints = PolylinePoints();
+    List<PointLatLng> decodedPolyLinePointsResultList =
+        pPoints.decodePolyline(directionDetailsInfo!.e_points!);
+
+    pLineCoOrdinatesList.clear();
+
+    if (decodedPolyLinePointsResultList.isNotEmpty) {
+      decodedPolyLinePointsResultList.forEach((PointLatLng pointLatLng) {
+        pLineCoOrdinatesList
+            .add(LatLng(pointLatLng.latitude, pointLatLng.longitude));
+      });
+    }
+
+    polyLineSet.clear();
+
+    setState(() {
+      Polyline polyline = Polyline(
+        color: Colors.purpleAccent,
+        polylineId: const PolylineId("PolylineID"),
+        jointType: JointType.round,
+        points: pLineCoOrdinatesList,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        geodesic: true,
+      );
+
+      polyLineSet.add(polyline);
+    });
+
+    LatLngBounds boundsLatLng;
+    if (originLatLng.latitude > destinationLatLng.latitude &&
+        originLatLng.longitude > destinationLatLng.longitude) {
+      boundsLatLng =
+          LatLngBounds(southwest: destinationLatLng, northeast: originLatLng);
+    } else if (originLatLng.longitude > destinationLatLng.longitude) {
+      boundsLatLng = LatLngBounds(
+        southwest: LatLng(originLatLng.latitude, destinationLatLng.longitude),
+        northeast: LatLng(destinationLatLng.latitude, originLatLng.longitude),
+      );
+    } else if (originLatLng.latitude > destinationLatLng.latitude) {
+      boundsLatLng = LatLngBounds(
+        southwest: LatLng(destinationLatLng.latitude, originLatLng.longitude),
+        northeast: LatLng(originLatLng.latitude, destinationLatLng.longitude),
+      );
+    } else {
+      boundsLatLng =
+          LatLngBounds(southwest: originLatLng, northeast: destinationLatLng);
+    }
+
+    newGoogleMapController!
+        .animateCamera(CameraUpdate.newLatLngBounds(boundsLatLng, 65));
+
+    Marker originMarker = Marker(
+      markerId: const MarkerId("originID"),
+      infoWindow:
+          InfoWindow(title: originPosition.locationName, snippet: "Origin"),
+      position: originLatLng,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
+    );
+
+    Marker destinationMarker = Marker(
+      markerId: const MarkerId("destinationID"),
+      infoWindow: InfoWindow(
+          title: destinationPosition.locationName, snippet: "Destination"),
+      position: destinationLatLng,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+    );
+
+    setState(() {
+      markersSet.add(originMarker);
+      markersSet.add(destinationMarker);
+    });
+
+    Circle originCircle = Circle(
+      circleId: const CircleId("originID"),
+      fillColor: Colors.green,
+      radius: 12,
+      strokeWidth: 3,
+      strokeColor: Colors.white,
+      center: originLatLng,
+    );
+
+    Circle destinationCircle = Circle(
+      circleId: const CircleId("destinationID"),
+      fillColor: Colors.red,
+      radius: 12,
+      strokeWidth: 3,
+      strokeColor: Colors.white,
+      center: destinationLatLng,
+    );
+
+    setState(() {
+      circlesSet.add(originCircle);
+      circlesSet.add(destinationCircle);
+    });
+  }
+
+  displayActiveDriversOnUsersMap(List<ActiveNearbyAvailableDrivers> drivers) {
+    markersSet.clear();
+    circlesSet.clear();
+
+    Set<Marker> driversMarkerSet = Set<Marker>();
+
+    for (var element in drivers) {
+      LatLng eachDriverActivePosition =
+          LatLng(element.locationLatitude!, element.locationLongitude!);
+
+      Marker marker = Marker(
+        markerId: MarkerId("driver${element.driverId!}"),
+        position: eachDriverActivePosition,
+        // icon: activeNearbyIcon!,
+        rotation: 360,
+      );
+
+      driversMarkerSet.add(marker);
+    }
+
+    markersSet = driversMarkerSet;
+
+    setState(() {});
   }
 }
