@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:location/location.dart' as loc;
 import '../../assistants/assistant_methods.dart';
 import '../../global/global.dart';
 import '../../models/active_nearby_drivers.dart';
@@ -33,6 +34,7 @@ class _RideStartScreenState extends State<RideStartScreen> {
   Set<Marker> markersSet = {};
   Set<Circle> circlesSet = {};
   Map data = {};
+  loc.Location location = loc.Location();
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
   List<LatLng> pLineCoOrdinatesList = [];
 
@@ -44,6 +46,29 @@ class _RideStartScreenState extends State<RideStartScreen> {
   void callNumber(String phoneNumber) async {
     String number = phoneNumber; //set the number here
     await FlutterPhoneDirectCaller.callNumber(number);
+  }
+
+  void checkRideAccepted() async {
+    loc.LocationData locationData = await location.getLocation();
+    dynamic ref = FirebaseDatabase.instance
+        .ref()
+        .child("requestRides")
+        .child(widget.data['user_id'])
+        .onValue;
+
+    ref.listen((event) {
+      String status = event.snapshot.value["status"].toString();
+      double driverLat = locationData.latitude!;
+      double driverLng = locationData.longitude!;
+
+      if (status == "arrived") {
+        event.snapshot.ref.update({
+          'driver_lat': driverLat,
+          'driver_lng': driverLng,
+        });
+        drawPolyLineFromOriginToDestination(event.snapshot.value);
+      }
+    });
   }
 
   locateUserPosition() async {
@@ -63,6 +88,7 @@ class _RideStartScreenState extends State<RideStartScreen> {
   @override
   void initState() {
     locateUserPosition();
+    checkRideAccepted();
     super.initState();
   }
 
@@ -270,7 +296,7 @@ class _RideStartScreenState extends State<RideStartScreen> {
                     onMapCreated: (GoogleMapController controller) async {
                       _controllerGoogleMap.complete(controller);
                       newGoogleMapController = controller;
-                      await drawPolyLineFromOriginToDestination(widget.data);
+                      await drawPolyLineFromOriginToDestination(data);
 
                       blackThemeGoogleMap();
 
