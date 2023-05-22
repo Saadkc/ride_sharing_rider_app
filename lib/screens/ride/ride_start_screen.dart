@@ -32,6 +32,7 @@ class _RideStartScreenState extends State<RideStartScreen> {
   Set<Polyline> polyLineSet = {};
   Set<Marker> markersSet = {};
   Set<Circle> circlesSet = {};
+  Map data = {};
   final Completer<GoogleMapController> _controllerGoogleMap = Completer();
   List<LatLng> pLineCoOrdinatesList = [];
 
@@ -238,210 +239,256 @@ class _RideStartScreenState extends State<RideStartScreen> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : Stack(children: [
-              GoogleMap(
-                padding: EdgeInsets.only(bottom: bottomPaddingOfMap),
+          : StreamBuilder<dynamic>(
+              stream: FirebaseDatabase.instance
+                  .ref()
+                  .child("requestRides")
+                  .child(widget.data['user_id'])
+                  .onValue,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-                mapType: MapType.normal,
-                myLocationEnabled: true,
-                zoomGesturesEnabled: true,
-                zoomControlsEnabled: true,
-                initialCameraPosition: _initialPosition!,
-                polylines: polyLineSet,
-                // markers: markers,
-                markers: Set.from(markersSet),
-                circles: circlesSet,
-                onMapCreated: (GoogleMapController controller) async {
-                  _controllerGoogleMap.complete(controller);
-                  newGoogleMapController = controller;
-                  await drawPolyLineFromOriginToDestination(widget.data);
+                data = snapshot.data.snapshot.value;
 
-                  blackThemeGoogleMap();
+                return Stack(children: [
+                  GoogleMap(
+                    padding: EdgeInsets.only(bottom: bottomPaddingOfMap),
 
-                  setState(() {
-                    bottomPaddingOfMap = 240;
-                  });
-                },
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: AnimatedSize(
-                    curve: Curves.easeIn,
-                    duration: const Duration(milliseconds: 120),
-                    child: Container(
-                      height: searchLocationContainerHeight,
-                      decoration: const BoxDecoration(
-                        color: Colors.black87,
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(20),
-                          topLeft: Radius.circular(20),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 18),
-                        child: Column(
-                          children: [
-                            const SizedBox(
-                              height: 5,
+                    mapType: MapType.normal,
+                    myLocationEnabled: true,
+                    zoomGesturesEnabled: true,
+                    zoomControlsEnabled: true,
+                    initialCameraPosition: _initialPosition!,
+                    polylines: polyLineSet,
+                    // markers: markers,
+                    markers: Set.from(markersSet),
+                    circles: circlesSet,
+                    onMapCreated: (GoogleMapController controller) async {
+                      _controllerGoogleMap.complete(controller);
+                      newGoogleMapController = controller;
+                      await drawPolyLineFromOriginToDestination(widget.data);
+
+                      blackThemeGoogleMap();
+
+                      setState(() {
+                        bottomPaddingOfMap = 240;
+                      });
+                    },
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: AnimatedSize(
+                        curve: Curves.easeIn,
+                        duration: const Duration(milliseconds: 120),
+                        child: Container(
+                          height: searchLocationContainerHeight,
+                          decoration: const BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(20),
+                              topLeft: Radius.circular(20),
                             ),
-
-                            //from
-                            Row(
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 18),
+                            child: Column(
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                const SizedBox(
+                                  height: 5,
+                                ),
+
+                                //from
+                                Row(
                                   children: [
-                                    Text(
-                                      "Passenger Name: ${widget.data["passenger_name"]}",
-                                      style: const TextStyle(
-                                          color: Colors.grey, fontSize: 12),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Passenger Name: ${widget.data["passenger_name"]}",
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 12),
+                                        ),
+                                        Text(
+                                          "Passenger Phone: ${widget.data["passenger_phone"]}",
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 14),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      "Passenger Phone: ${widget.data["passenger_phone"]}",
-                                      style: const TextStyle(
-                                          color: Colors.grey, fontSize: 14),
-                                    ),
+                                    const Spacer(),
+                                    GestureDetector(
+                                        onTap: () {
+                                          callNumber(
+                                              widget.data["passenger_phone"]);
+                                        },
+                                        child: const Icon(Icons.call,
+                                            color: Colors.green))
                                   ],
                                 ),
-                                const Spacer(),
-                                GestureDetector(
-                                    onTap: () {
-                                      callNumber(
-                                          widget.data["passenger_phone"]);
-                                    },
-                                    child: const Icon(Icons.call,
-                                        color: Colors.green))
+
+                                const SizedBox(height: 20.0),
+
+                                Container(
+                                  height: 100,
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[700],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      const SizedBox(height: 15.0),
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 10.0),
+                                          const Icon(
+                                            Icons.location_on,
+                                            color: Colors.green,
+                                          ),
+                                          const SizedBox(width: 10.0),
+                                          Expanded(
+                                            child: Text(
+                                              "from: ${widget.data["pickupLocation"]}",
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5.0),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 40),
+                                        child: Divider(
+                                          color: Colors.white,
+                                          height: 1,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 15.0),
+                                      (data['status'] == "accepted")
+                                          ? const SizedBox.shrink()
+                                          : Row(
+                                              children: [
+                                                const SizedBox(width: 10.0),
+                                                const Icon(
+                                                  Icons.location_on,
+                                                  color: Colors.green,
+                                                ),
+                                                const SizedBox(width: 10.0),
+                                                Expanded(
+                                                  child: Text(
+                                                    "To: ${widget.data["dropOffLocation"]}",
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 16),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                      const SizedBox(height: 5.0),
+                                      (data['status'] == "accepted")
+                                          ? const SizedBox.shrink()
+                                          : const Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 40),
+                                              child: Divider(
+                                                color: Colors.white,
+                                                height: 1,
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 20.0),
+                                InkWell(
+                                  onTap: () {
+                                    User user =
+                                        FirebaseAuth.instance.currentUser!;
+
+                                    if (data['status'] == "accepted") {
+                                      FirebaseDatabase.instance
+                                          .ref()
+                                          .child("requestRides")
+                                          .child(widget.data["user_id"])
+                                          .update({
+                                        "status": "arrived",
+                                      }).then((value) {
+                                        Fluttertoast.showToast(
+                                            msg: "Arrived User Lcoation");
+                                        setState(() {});
+                                      });
+                                    } else {
+                                      FirebaseDatabase.instance
+                                          .ref()
+                                          .child("requestRides")
+                                          .child(widget.data["user_id"])
+                                          .update({
+                                            "status": "completed",
+                                          })
+                                          .then((value) =>
+                                              Fluttertoast.showToast(
+                                                  msg: "Ride Completed"))
+                                          .then((value) =>
+                                              Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const EndRide())));
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 40,
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 40),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        data['status'] == "accepted"
+                                            ? "Arrived at pickup location"
+                                            : "End Ride",
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ),
+                                )
                               ],
                             ),
-
-                            const SizedBox(height: 20.0),
-
-                            Container(
-                              height: 100,
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[700],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 15.0),
-                                  Row(
-                                    children: [
-                                      const SizedBox(width: 10.0),
-                                      const Icon(
-                                        Icons.location_on,
-                                        color: Colors.green,
-                                      ),
-                                      const SizedBox(width: 10.0),
-                                      Expanded(
-                                        child: Text(
-                                          "from: ${widget.data["pickupLocation"]}",
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5.0),
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 40),
-                                    child: Divider(
-                                      color: Colors.white,
-                                      height: 1,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 15.0),
-                                  Row(
-                                    children: [
-                                      const SizedBox(width: 10.0),
-                                      const Icon(
-                                        Icons.location_on,
-                                        color: Colors.green,
-                                      ),
-                                      const SizedBox(width: 10.0),
-                                      Expanded(
-                                        child: Text(
-                                          "To: ${widget.data["dropOffLocation"]}",
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5.0),
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 40),
-                                    child: Divider(
-                                      color: Colors.white,
-                                      height: 1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 20.0),
-                            InkWell(
-                              onTap: () {
-                                User user = FirebaseAuth.instance.currentUser!;
-
-                                FirebaseDatabase.instance
-                                    .ref()
-                                    .child("requestRides")
-                                    .child(widget.data["user_id"])
-                                    .update({
-                                      "status": "completed",
-                                    })
-                                    .then((value) => Fluttertoast.showToast(
-                                        msg: "Ride Completed"))
-                                    .then((value) => Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const EndRide())));
-                              },
-                              child: Container(
-                                height: 40,
-                                width: double.infinity,
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 40),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    "End Ride",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    )),
-              ),
-            ]),
+                          ),
+                        )),
+                  ),
+                ]);
+              }),
     );
   }
 
   Future<void> drawPolyLineFromOriginToDestination(Map data) async {
     var originLatLng = LatLng(data['fromLatitude'], data['fromLongitute']);
-    var destinationLatLng = LatLng(data['toLatitude'], data['toLongitute']);
+    var destinationLatLng;
+    if (data['status'] == "accepted") {
+      destinationLatLng = LatLng(data['driver_lat'], data['driver_lng']);
+    } else {
+      destinationLatLng = LatLng(data['toLatitude'], data['toLongitute']);
+    }
 
     List<ActiveNearbyAvailableDrivers> drivers = [];
 

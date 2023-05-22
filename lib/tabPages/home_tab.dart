@@ -227,6 +227,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
                     ]
                 ''');
   }
+
   checkIfLocationPermissionAllowed() async {
     _locationPermission = await Geolocator.requestPermission();
 
@@ -276,7 +277,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
             locateDriverPosition();
           },
         ),
-    
+
         //ui for online offline driver
         statusText != "Now Online"
             ? Container(
@@ -285,7 +286,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
                 color: Colors.black87,
               )
             : Container(),
-    
+
         //button for online offline driver
         Positioned(
           top: statusText != "Now Online"
@@ -302,25 +303,25 @@ class _HomeTabPageState extends State<HomeTabPage> {
                   {
                     driverIsOnlineNow();
                     // updateDriversLocationAtRealTime();
-    
+
                     setState(() {
                       statusText = "Now Online";
                       isDriverActive = true;
                       buttonColor = Colors.transparent;
                     });
-    
+
                     //display Toast
                     Fluttertoast.showToast(msg: "you are Online Now");
                   } else //online
                   {
                     driverIsOfflineNow();
-    
+
                     setState(() {
                       statusText = "Now Offline";
                       isDriverActive = false;
                       buttonColor = Colors.grey;
                     });
-    
+
                     //display Toast
                     Fluttertoast.showToast(msg: "you are Offline Now");
                   }
@@ -350,7 +351,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
             ],
           ),
         ),
-    
+
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(
@@ -402,15 +403,18 @@ class _HomeTabPageState extends State<HomeTabPage> {
                       ),
                     ),
                     ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (statusText != "Now Online") {
                             Fluttertoast.showToast(
                                 msg: "you have to be Online first");
                           } else {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const RequestRide()));
+                            await location.getLocation().then((value) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          RequestRide(currentLocation: value)));
+                            });
                           }
                         },
                         child: const Text("Available Rides"))
@@ -423,13 +427,11 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   driverIsOnlineNow() async {
-
     DatabaseReference ref = FirebaseDatabase.instance
         .ref()
         .child('activeDrivers')
         .child(currentFirebaseUser!.uid);
 
-   
     location.onLocationChanged.listen((loc.LocationData currentLocation) {
       ref.set({
         "latitude": currentLocation.latitude,

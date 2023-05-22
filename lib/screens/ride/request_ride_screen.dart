@@ -4,13 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:location/location.dart';
 import 'package:rider/screens/ride/ride_start_screen.dart';
 
 import '../../global/global.dart';
 import '../../models/user_model.dart';
 
 class RequestRide extends StatefulWidget {
-  const RequestRide({super.key});
+  final LocationData currentLocation;
+  const RequestRide({super.key, required this.currentLocation});
 
   @override
   State<RequestRide> createState() => _RequestRideState();
@@ -64,6 +66,8 @@ class _RequestRideState extends State<RequestRide> {
                                       "driver_name": userModelCurrentInfo!.name,
                                       "driver_phone":
                                           userModelCurrentInfo!.phone,
+                                      "driver_lat": widget.currentLocation.latitude,
+                                      "driver_lng": widget.currentLocation.longitude,
                                     })
                                     .then((value) => Fluttertoast.showToast(
                                         msg: "Ride Accepted"))

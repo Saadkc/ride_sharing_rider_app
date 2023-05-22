@@ -9,18 +9,16 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   //late AnimationController _controller;
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('KIET Ride Sharing App'),
+        title: const Text('KIET Ride Sharing App'),
         backgroundColor: Colors.red,
       ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -28,22 +26,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               SizedBox(height:150,
               child: Image.asset("assets/images/logo1.jpg", fit: BoxFit.contain),
               ),
-              Text("Welcome Back ", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              const Text("Welcome Back ", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 10),
-              Text("Name",
+              const SizedBox(height: 10),
+              const Text("Name",
               style: TextStyle(
                 color: Colors.black54,
                 fontWeight: FontWeight.w500,
 
               ),),
-              Text("Email",
+              const Text("Email",
                 style: TextStyle(
                   color: Colors.black54,
                   fontWeight: FontWeight.w500,
                 ), ),
-              SizedBox(height: 15),
-              ActionChip(label: Text("Logout"), onPressed: (){})
+              const SizedBox(height: 15),
+              ActionChip(label: const Text("Logout"), onPressed: (){})
 
             ],
           ),
