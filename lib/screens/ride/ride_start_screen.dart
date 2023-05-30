@@ -13,6 +13,7 @@ import '../../assistants/assistant_methods.dart';
 import '../../global/global.dart';
 import '../../models/active_nearby_drivers.dart';
 import 'end_ride.dart';
+import 'dart:math' show cos, sqrt, asin;
 
 class RideStartScreen extends StatefulWidget {
   final Map data;
@@ -47,6 +48,16 @@ class _RideStartScreenState extends State<RideStartScreen> {
     String number = phoneNumber; //set the number here
     await FlutterPhoneDirectCaller.callNumber(number);
   }
+
+  double calculateDistance(lat1, lon1, lat2, lon2){
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 - c((lat2 - lat1) * p)/2 + 
+          c(lat1 * p) * c(lat2 * p) * 
+          (1 - c((lon2 - lon1) * p))/2;
+    return 12742 * asin(sqrt(a));
+  }
+
 
   void checkRideAccepted() async {
     loc.LocationData locationData = await location.getLocation();
@@ -458,6 +469,8 @@ class _RideStartScreenState extends State<RideStartScreen> {
                                         setState(() {});
                                       });
                                     } else {
+                                      double km = calculateDistance(widget.data['fromLatitude'], widget.data['fromLongitute'], widget.data['toLatitude'], widget.data['toLongitute']);
+                                      km = km * 20;
                                       FirebaseDatabase.instance
                                           .ref()
                                           .child("requestRides")
@@ -473,7 +486,10 @@ class _RideStartScreenState extends State<RideStartScreen> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          const EndRide())));
+                                                          EndRide(
+                                                            km: km,
+                                                            data: widget.data,
+                                                          ))));
                                     }
                                   },
                                   child: Container(
