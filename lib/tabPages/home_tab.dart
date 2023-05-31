@@ -38,6 +38,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
   Color buttonColor = Colors.grey;
   bool isDriverActive = false;
 
+  
   void getLocation() async {
     bool _serviceEnabled;
     loc.PermissionStatus _permissionGranted;
@@ -424,13 +425,11 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   driverIsOnlineNow() async {
-
     DatabaseReference ref = FirebaseDatabase.instance
         .ref()
         .child('activeDrivers')
         .child(currentFirebaseUser!.uid);
 
-   
     location.onLocationChanged.listen((loc.LocationData currentLocation) {
       ref.set({
         "latitude": currentLocation.latitude,
