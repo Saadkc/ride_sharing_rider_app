@@ -8,6 +8,7 @@ import '../global/global.dart';
 import '../map/current_location.dart';
 import '../screens/mainScreens/main_screen.dart';
 import '../widgets/progress_dialog.dart';
+import 'forget_pass_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -157,7 +158,20 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                child: const Text("Forget Password"),
+                onPressed: () {
+                  // Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginOTPPage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ForgetPassword()));
+                },
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -172,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             TextButton(
-              child: const Text("Already have an Account? Login Here"),
+              child: const Text("Already have an Account? Signup Here"),
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (c) => const SignupScreen()));
