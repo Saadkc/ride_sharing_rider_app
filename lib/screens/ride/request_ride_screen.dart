@@ -40,6 +40,10 @@ class _RequestRideState extends State<RequestRide> {
 
             Map data = snapshot.data!.snapshot.value;
 
+            data.removeWhere((key, value) {
+              return value['status'] != "pending";
+            });
+
             return ListView.builder(
                 itemCount: data.length,
                 itemBuilder: (context, index) {

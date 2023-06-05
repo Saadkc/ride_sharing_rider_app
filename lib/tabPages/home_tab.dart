@@ -38,6 +38,13 @@ class _HomeTabPageState extends State<HomeTabPage> {
   Color buttonColor = Colors.grey;
   bool isDriverActive = false;
 
+  StreamSubscription<loc.LocationData>? locationSubscription;
+
+  dispose() {
+    super.dispose();
+    locationSubscription!.cancel();
+  }
+
   void getLocation() async {
     bool _serviceEnabled;
     loc.PermissionStatus _permissionGranted;
@@ -432,7 +439,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
         .child('activeDrivers')
         .child(currentFirebaseUser!.uid);
 
-    location.onLocationChanged.listen((loc.LocationData currentLocation) {
+    locationSubscription =
+        location.onLocationChanged.listen((loc.LocationData currentLocation) {
       ref.set({
         "latitude": currentLocation.latitude,
         "longitude": currentLocation.longitude,
@@ -440,8 +448,6 @@ class _HomeTabPageState extends State<HomeTabPage> {
         log(err);
       });
     });
-
-
 
     //searching for ride request
     // ref.onValue.listen((event) {}); //accept or reject ride request
@@ -466,6 +472,10 @@ class _HomeTabPageState extends State<HomeTabPage> {
     });
   }
 
+  void stopLocationUpdates() {
+    locationSubscription!.cancel();
+  }
+
   driverIsOfflineNow() async {
     // Geofire.initialize("activeDrivers");
 
@@ -477,6 +487,8 @@ class _HomeTabPageState extends State<HomeTabPage> {
         .child('activeDrivers')
         .child(currentFirebaseUser!.uid)
         .remove();
+
+    stopLocationUpdates();
 
     // Geofire.removeLocation(currentFirebaseUser!.uid);
 
