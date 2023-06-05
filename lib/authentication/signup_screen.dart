@@ -7,6 +7,7 @@ import 'package:rider/authentication/login_screen.dart';
 import 'package:rider/global/global.dart';
 import 'package:rider/widgets/progress_dialog.dart';
 
+import 'OTP/generate_OTP.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -17,89 +18,74 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
     TextEditingController nameTextEditingController = TextEditingController();
     TextEditingController emailTextEditingController = TextEditingController();
     TextEditingController phoneTextEditingController = TextEditingController();
-    TextEditingController passwordTextEditingController = TextEditingController();
+    TextEditingController passwordTextEditingController =
+        TextEditingController();
 
 //------------------------------------------------------------------
-    saveDriverInfo() async
-    {
+    saveDriverInfo() async {
       showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (BuildContext c)
-          {
-            return ProgressDialogue(message: "Processing, please Wait",);
-          }
-      );
-      final User? firebaseUser = (
-      await fAuth.createUserWithEmailAndPassword(
-          email: emailTextEditingController.text.trim(),
+          builder: (BuildContext c) {
+            return ProgressDialogue(
+              message: "Processing, please Wait",
+            );
+          });
+      final User? firebaseUser = (await fAuth
+              .createUserWithEmailAndPassword(
+        email: emailTextEditingController.text.trim(),
         password: passwordTextEditingController.text.trim(),
-      ).catchError((msg){
+      )
+              .catchError((msg) {
         // Navigator.pop(context);
         Fluttertoast.showToast(msg: "Error: " + msg.toString());
-      })
-      ).user;
-
+      }))
+          .user;
 
       // for realtime database
-      if(firebaseUser!= null)
-        {
-          Map driversMap =
-              {
-                "id": firebaseUser.uid,
-                "name": nameTextEditingController.text.trim(),
-                "email": emailTextEditingController.text.trim(),
-                "phone": phoneTextEditingController.text.trim(),
-                "password": passwordTextEditingController.text.trim(),
-              };
-          DatabaseReference driversRef = FirebaseDatabase.instance.ref().child("drivers");
-          driversRef.child(firebaseUser.uid).set(driversMap);
-          currentFirebaseUser = firebaseUser;
+      if (firebaseUser != null) {
+        Map driversMap = {
+          "id": firebaseUser.uid,
+          "name": nameTextEditingController.text.trim(),
+          "email": emailTextEditingController.text.trim(),
+          "phone": phoneTextEditingController.text.trim(),
+          "password": passwordTextEditingController.text.trim(),
+        };
+        DatabaseReference driversRef =
+            FirebaseDatabase.instance.ref().child("drivers");
+        driversRef.child(firebaseUser.uid).set(driversMap);
+        currentFirebaseUser = firebaseUser;
 
-          Fluttertoast.showToast(msg: "Account has been created.");
-          Navigator.push(context, MaterialPageRoute(builder: (c)=> CarInfoScreen()));
-
-        }
-      else
-        {
-          Navigator.pop(context);
-          Fluttertoast.showToast(msg: "Account has not been created");
-        }
+        Fluttertoast.showToast(msg: "Account has been created.");
+        Navigator.push(
+            context, MaterialPageRoute(builder: (c) => const LoginOTPPage()));
+      } else {
+        Navigator.pop(context);
+        Fluttertoast.showToast(msg: "Account has not been created");
+      }
     }
-//------------------------------------------------------------------
-    validationForm()
-    {
-      if(nameTextEditingController.text.length < 3)
-        {
-         Fluttertoast.showToast(msg: "name mustbe at least 3 characters. ");
-        }
-      //validation...check
-      else if (!emailTextEditingController.text.contains("@"))
-        {
-          Fluttertoast.showToast(msg: "Email address is not valid. ");
-        }
-      else if (phoneTextEditingController.text.isEmpty)
-      {
-        Fluttertoast.showToast(msg: "Phone Number is Required ");
-      }
-      else if (passwordTextEditingController.text.length <6)
-      {
-        Fluttertoast.showToast(msg: "Password must be atleast 6 characters ");
-      }
-      else
-        {
-          saveDriverInfo();
 
-        }
+//------------------------------------------------------------------
+    validationForm() {
+      if (nameTextEditingController.text.length < 3) {
+        Fluttertoast.showToast(msg: "name mustbe at least 3 characters. ");
+      }
+      //validation...check
+      else if (!emailTextEditingController.text.contains("@")) {
+        Fluttertoast.showToast(msg: "Email address is not valid. ");
+      } else if (phoneTextEditingController.text.isEmpty) {
+        Fluttertoast.showToast(msg: "Phone Number is Required ");
+      } else if (passwordTextEditingController.text.length < 6) {
+        Fluttertoast.showToast(msg: "Password must be atleast 6 characters ");
+      } else {
+        saveDriverInfo();
+      }
     }
 //----------------------------------------------------------------------------------
-
-
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -108,46 +94,44 @@ class _SignupScreenState extends State<SignupScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
               Padding(
-                  padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Image.asset("assets/images/logo1.jpg"),
               ),
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
               const Text(
                 "Register as Driver",
                 style: TextStyle(
-                fontSize: 24,
-                color: Colors.black,
-                fontWeight: FontWeight.bold
-                ),
+                    fontSize: 24,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
               ),
-
-
               TextField(
                 controller: nameTextEditingController,
                 style: TextStyle(
                   color: Colors.black,
                 ),
                 decoration: InputDecoration(
-                labelText: "Name",
-                hintText: "Name",
-                enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
+                  labelText: "Name",
+                  hintText: "Name",
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
                   ),
-                hintStyle: TextStyle(
-  color: Colors.black,
-  fontSize: 15,
-  ),
+                  hintStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: 15,
+                  ),
                   labelStyle: TextStyle(
                     color: Colors.black,
                     fontSize: 15,
                   ),
-
-  ),
-
-
-          ),
+                ),
+              ),
               TextField(
                 controller: emailTextEditingController,
                 keyboardType: TextInputType.emailAddress,
@@ -168,10 +152,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     color: Colors.black,
                     fontSize: 15,
                   ),
-
                 ),
-
-
               ),
               TextField(
                 controller: phoneTextEditingController,
@@ -193,10 +174,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     color: Colors.black,
                     fontSize: 15,
                   ),
-
                 ),
-
-
               ),
               TextField(
                 controller: passwordTextEditingController,
@@ -219,42 +197,33 @@ class _SignupScreenState extends State<SignupScreen> {
                     color: Colors.black,
                     fontSize: 15,
                   ),
-
                 ),
-
-
               ),
-
-              const SizedBox(height: 20,),
-
+              const SizedBox(
+                height: 20,
+              ),
               ElevatedButton(
-                  onPressed: ()
-                  {
-                    validationForm();
-                  },
+                onPressed: () {
+                  validationForm();
+                },
                 style: ElevatedButton.styleFrom(
                   primary: Colors.orange,
                 ),
                 child: const Text(
                   "Create Account",
                   style: TextStyle(
-                      color: Colors.black,
+                    color: Colors.black,
                     fontSize: 18,
-
-
                   ),
                 ),
               ),
               TextButton(
-                child: Text(
-                    "Already have an Account? Login Here"
-                ),
-                onPressed: ()
-                {
-                  Navigator.push(context, MaterialPageRoute(builder: (c)=> LoginScreen()));
+                child: Text("Already have an Account? Login Here"),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (c) => LoginScreen()));
                 },
               ),
-
             ],
           ),
         ),
