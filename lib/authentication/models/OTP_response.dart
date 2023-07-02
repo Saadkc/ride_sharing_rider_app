@@ -3,7 +3,7 @@ import 'dart:convert';
 OtpLoginResponseModel otploginResponseJson(String str) =>
     OtpLoginResponseModel.fromJson(json.decode(str));
 
-class OtpLoginResponseModel {
+class OtpLoginResponseModel { // yeh rider app ha krlo solve
   OtpLoginResponseModel({
     required this.message,
     required this.data,
@@ -12,7 +12,7 @@ class OtpLoginResponseModel {
   late final String? data;
 
   OtpLoginResponseModel.fromJson(Map<String, dynamic> json) {
-    message = json['message'];
+    message = json['message'];//idher error aya ha
     data = json['data'];
   }
 

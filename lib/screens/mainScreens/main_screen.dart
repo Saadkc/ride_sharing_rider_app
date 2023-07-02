@@ -5,6 +5,7 @@ import 'package:rider/tabPages/ratings_tab.dart';
 
 
 import '../../tabPages/profile_tab.dart';
+import '../profile screen/profile_screen.dart';
 
 class MainScreen extends StatefulWidget
 {
@@ -45,7 +46,7 @@ onItemClicked(int index)
          HomeTabPage(),
          EarningTabPage(),
          RaitingsTabPage(),
-         ProfileTabPage(),
+         ProfileScreen(),
        ],
      ),
        bottomNavigationBar:

@@ -7,10 +7,13 @@ import 'package:rider/authentication/login_screen.dart';
 import 'package:rider/global/global.dart';
 import 'package:rider/widgets/progress_dialog.dart';
 
+import '../tabPages/home_tab.dart';
 import 'OTP/generate_OTP.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+  final String? mobileNo;
+  const SignupScreen({this.mobileNo});
+  //const SignupScreen({Key? key}) : super(key: key);
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -48,11 +51,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
       // for realtime database
       if (firebaseUser != null) {
+        String phoneNumber = "0" + widget.mobileNo!;
         Map driversMap = {
           "id": firebaseUser.uid,
           "name": nameTextEditingController.text.trim(),
           "email": emailTextEditingController.text.trim(),
-          "phone": phoneTextEditingController.text.trim(),
+          "phone": phoneNumber,
           "password": passwordTextEditingController.text.trim(),
         };
         DatabaseReference driversRef =
@@ -62,7 +66,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
         Fluttertoast.showToast(msg: "Account has been created.");
         Navigator.push(
-            context, MaterialPageRoute(builder: (c) => const LoginOTPPage()));
+            context, MaterialPageRoute(builder: (c) => const CarInfoScreen()));
       } else {
         Navigator.pop(context);
         Fluttertoast.showToast(msg: "Account has not been created");
@@ -77,9 +81,9 @@ class _SignupScreenState extends State<SignupScreen> {
       //validation...check
       else if (!emailTextEditingController.text.contains("@")) {
         Fluttertoast.showToast(msg: "Email address is not valid. ");
-      } else if (phoneTextEditingController.text.isEmpty) {
-        Fluttertoast.showToast(msg: "Phone Number is Required ");
-      } else if (passwordTextEditingController.text.length < 6) {
+      // } else if (phoneTextEditingController.text.isEmpty) {
+      //   Fluttertoast.showToast(msg: "Phone Number is Required ");
+      // } else if (passwordTextEditingController.text.length < 6) {
         Fluttertoast.showToast(msg: "Password must be atleast 6 characters ");
       } else {
         saveDriverInfo();
@@ -157,12 +161,14 @@ class _SignupScreenState extends State<SignupScreen> {
               TextField(
                 controller: phoneTextEditingController,
                 keyboardType: TextInputType.phone,
+                enabled: false,
                 style: TextStyle(
                   color: Colors.black,
                 ),
                 decoration: InputDecoration(
-                  labelText: "Phone Number",
+                  labelText: widget.mobileNo,
                   hintText: "Phone Number",
+
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.black),
                   ),

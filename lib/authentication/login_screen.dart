@@ -8,6 +8,7 @@ import '../global/global.dart';
 import '../map/current_location.dart';
 import '../screens/mainScreens/main_screen.dart';
 import '../widgets/progress_dialog.dart';
+import 'OTP/generate_OTP.dart';
 import 'forget_pass_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -186,10 +187,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             TextButton(
-              child: const Text("Already have an Account? Signup Here"),
+              child: const Text("Dont't have an Account? Signup Here"),
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (c) => const SignupScreen()));
+                    MaterialPageRoute(builder: (c) => const LoginOTPPage()));
               },
             ),
           ],

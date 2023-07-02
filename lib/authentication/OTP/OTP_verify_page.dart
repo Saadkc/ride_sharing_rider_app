@@ -1,13 +1,17 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:rider/authentication/login_screen.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:snippet_coder_utils/ProgressHUD.dart';
 import 'package:snippet_coder_utils/hex_color.dart';
+import 'package:rider/splashScreen/splash_screen.dart';
 
+import '../signup_screen.dart';
 import 'Api_service.dart';
 import 'config.dart';
 
@@ -154,11 +158,20 @@ class _OTPVerifyPageState extends State<OTPVerifyPage> {
                       "Ok",
                           () {
                         Navigator.of(context).pop();
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          "/register",
-                          arguments: {'mobileNo': widget.mobileNo},
+                        Navigator.pushAndRemoveUntil(
+                          context,
+
+                          MaterialPageRoute(
+                              builder: (context) => SignupScreen(mobileNo: widget.mobileNo)
+                          ),
                               (route) => false,
                         );
+
+                        // Navigator.of(context).pushNamedAndRemoveUntil(
+                        //   "/MySplashScreen",
+                        //   arguments: {'mobileNo': widget.mobileNo},
+                        //
+                        // );
                       },
                     );
                   } else {
@@ -201,8 +214,11 @@ class _OTPVerifyPageState extends State<OTPVerifyPage> {
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          "/otplogin",
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()
+                          ),
                               (route) => false,
                         );
                       },

@@ -230,7 +230,9 @@ class _AddScheduleState extends State<AddSchedule> {
               ],
             ),
           ),
+         
           const SizedBox(
+
             height: 20,
           ),
           Container(
