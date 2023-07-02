@@ -11,6 +11,7 @@ import 'package:location/location.dart' as loc;
 import 'package:rider/screens/ride/request_ride_screen.dart';
 
 import '../assistants/assistant_methods.dart';
+import '../authentication/add_schedule.dart';
 import '../global/global.dart';
 
 class HomeTabPage extends StatefulWidget {
@@ -409,22 +410,36 @@ class _HomeTabPageState extends State<HomeTabPage> {
                         ],
                       ),
                     ),
-                    ElevatedButton(
-                        onPressed: () async {
-                          if (statusText != "Now Online") {
-                            Fluttertoast.showToast(
-                                msg: "you have to be Online first");
-                          } else {
-                            await location.getLocation().then((value) {
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () async {
+                              if (statusText != "Now Online") {
+                                Fluttertoast.showToast(
+                                    msg: "you have to be Online first");
+                              } else {
+                                await location.getLocation().then((value) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => RequestRide(
+                                              currentLocation: value)));
+                                });
+                              }
+                            },
+                            child: const Text("Available Rides")),
+                        ElevatedButton(
+                            onPressed: () async {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          RequestRide(currentLocation: value)));
-                            });
-                          }
-                        },
-                        child: const Text("Available Rides"))
+                                          const AddSchedule()));
+                            },
+                            child: const Text("Add Schedule")),
+                      ],
+                    ),
                   ],
                 ),
               )),
