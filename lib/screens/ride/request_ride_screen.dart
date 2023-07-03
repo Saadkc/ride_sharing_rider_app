@@ -29,7 +29,8 @@ class _RequestRideState extends State<RequestRide> {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
-            } else if (!snapshot.hasData) {
+            } else if (!snapshot.hasData ||
+                snapshot.data!.snapshot.value == null) {
               return const Center(
                   child: Text('No ride request available right now'));
             }
@@ -40,9 +41,9 @@ class _RequestRideState extends State<RequestRide> {
               return value['status'] != "pending";
             });
 
-            data.removeWhere((key, value) {
-              return value['car_type'] != userModelCurrentInfo!.type;
-            });
+            // data.removeWhere((key, value) {
+            //   return value['car_type'] != userModelCurrentInfo!.type;
+            // });
 
             return ListView.builder(
                 itemCount: data.length,
