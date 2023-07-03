@@ -5,6 +5,7 @@ import 'package:rider/tabPages/ratings_tab.dart';
 
 import '../../tabPages/profile_tab.dart';
 import '../profile screen/profile_screen.dart';
+import '../schedule history/schedule_history.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -39,6 +40,7 @@ class _MainScreenState extends State<MainScreen>
         children: const [
           HomeTabPage(),
           EarningTabPage(),
+          ScheduleScreen(),
           ProfileScreen(),
         ],
       ),
@@ -51,6 +53,10 @@ class _MainScreenState extends State<MainScreen>
           BottomNavigationBarItem(
             icon: Icon(Icons.credit_card),
             label: "location",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.score),
+            label: "Schedule",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
