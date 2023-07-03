@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../global/global.dart';
 import '../../splashScreen/splash_screen.dart';
@@ -84,13 +85,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onPressed: () {
                             FirebaseDatabase.instance
                                 .ref()
-                                .child("users")
+                                .child("drivers")
                                 .child(currentFirebaseUser!.uid)
                                 .update({
                               'name': nameController.text,
                               'email': emailController.text,
                               'phone': phoneController.text,
-                            }).then((value) => Navigator.pop(context));
+                            }).then((value) => Fluttertoast.showToast(msg: "Profile Updated"));
                           },
                           child: const Text('Update'),
                         ),
