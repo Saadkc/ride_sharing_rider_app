@@ -50,6 +50,7 @@ class AssistantMethods
     {
       if(snap.snapshot.value != null)
       {
+        
         userModelCurrentInfo = UserModel.fromSnapshot(snap.snapshot);
       }
     });

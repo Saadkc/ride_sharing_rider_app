@@ -7,6 +7,7 @@ class UserModel
   String? name;
   String? id;
   String? email;
+  String? type;
   
   //constructor
   UserModel({this.phone, this.name, this.id, this.email,});
@@ -17,5 +18,6 @@ class UserModel
     name = (snap.value as dynamic)["name"];
     id = snap.key;
     email = (snap.value as dynamic)["email"];
+    type = (snap.value as dynamic)["car_details"]["type"];
   }
 }

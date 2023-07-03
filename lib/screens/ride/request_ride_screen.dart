@@ -1,14 +1,10 @@
-import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:location/location.dart';
 import 'package:rider/screens/ride/ride_start_screen.dart';
-
 import '../../global/global.dart';
-import '../../models/user_model.dart';
 
 class RequestRide extends StatefulWidget {
   final LocationData currentLocation;
@@ -44,6 +40,10 @@ class _RequestRideState extends State<RequestRide> {
               return value['status'] != "pending";
             });
 
+            data.removeWhere((key, value) {
+              return value['car_type'] != userModelCurrentInfo!.type;
+            });
+
             return ListView.builder(
                 itemCount: data.length,
                 itemBuilder: (context, index) {
@@ -51,8 +51,15 @@ class _RequestRideState extends State<RequestRide> {
                     child: ListTile(
                       title: Text(
                           "Name: ${data.values.elementAt(index)['passenger_name'].toString()}"),
-                      subtitle: Text(
-                          "Phone : ${data.values.elementAt(index)['passenger_phone'].toString()}"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              "Phone : ${data.values.elementAt(index)['passenger_phone'].toString()}"),
+                          Text(
+                              "Passenger count : ${data.values.elementAt(index)['passenger_count'].toString()}"),
+                        ],
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -70,8 +77,10 @@ class _RequestRideState extends State<RequestRide> {
                                       "driver_name": userModelCurrentInfo!.name,
                                       "driver_phone":
                                           userModelCurrentInfo!.phone,
-                                      "driver_lat": widget.currentLocation.latitude,
-                                      "driver_lng": widget.currentLocation.longitude,
+                                      "driver_lat":
+                                          widget.currentLocation.latitude,
+                                      "driver_lng":
+                                          widget.currentLocation.longitude,
                                     })
                                     .then((value) => Fluttertoast.showToast(
                                         msg: "Ride Accepted"))
