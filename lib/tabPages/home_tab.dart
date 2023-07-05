@@ -11,7 +11,7 @@ import 'package:location/location.dart' as loc;
 import 'package:rider/screens/ride/request_ride_screen.dart';
 
 import '../assistants/assistant_methods.dart';
-import '../authentication/add_schedule.dart';
+import '../screens/schedule history/add_schedule.dart';
 import '../global/global.dart';
 
 class HomeTabPage extends StatefulWidget {
