@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 
 import '../../global/global.dart';
 
-class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({super.key});
+class BookingScreen extends StatefulWidget {
+  const BookingScreen({super.key});
 
   @override
-  State<ScheduleScreen> createState() => _ScheduleScreenState();
+  State<BookingScreen> createState() => _BookingnState();
 }
 
-class _ScheduleScreenState extends State<ScheduleScreen> {
+class _BookingnState extends State<BookingScreen> {
   TextEditingController fromLocationController = TextEditingController();
   TextEditingController toLocationController = TextEditingController();
   TextEditingController faresController = TextEditingController();
@@ -18,42 +18,36 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(currentFirebaseUser!.uid);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Schedule'),
+        title: const Text('Booked Rides'),
         centerTitle: true,
-        leading: const SizedBox.shrink(),
       ),
       body: StreamBuilder<dynamic>(
-          stream: FirebaseDatabase.instance
-              .ref()
-              .child("schedule")
-              .child(currentFirebaseUser!.uid)
-              .onValue,
+          stream: FirebaseDatabase.instance.ref().child("booking").onValue,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else if (snapshot.data!.snapshot.value == null) {
-              return const Center(
-                  child: Text('No Schdule available right now'));
+              return const Center(child: Text('No Booking Avaialble'));
             }
 
             Map data = snapshot.data!.snapshot.value;
 
+            data.removeWhere(
+                (key, value) => value["driver_id"] != currentFirebaseUser!.uid);
+
             return ListView.builder(
                 itemCount: 1,
                 itemBuilder: (context, index) {
-                  fromLocationController.text = data['fromLocation'];
-                  toLocationController.text = data['toLocation'];
-                  isDaily = data['isDaily'];
-                  faresController.text = data['fares'];
+                  isDaily = data.values.elementAt(index)["isDaily"];
+
                   return Container(
                     margin: const EdgeInsets.all(20),
                     padding: const EdgeInsets.all(20),
-                    height: 480,
+                    height: 540,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(20),
@@ -64,8 +58,29 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         const SizedBox(
                           height: 20,
                         ),
+                        Text(
+                          "Passenger Name: ${data.values.elementAt(index)['passenger_name'].toString()}",
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          "Passenger Phone: ${data.values.elementAt(index)['passenger_phone'].toString()}",
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
                         TextFormField(
-                          controller: fromLocationController,
+                          initialValue:
+                              data.values.elementAt(index)['fromLocation'],
+                          // controller: fromLocationController,
                           keyboardType: TextInputType.text,
                           style: const TextStyle(
                             color: Colors.black,
@@ -87,7 +102,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                         ),
                         TextFormField(
-                          controller: toLocationController,
+                          initialValue:
+                              data.values.elementAt(index)['toLocation'],
+                          // controller: toLocationController,
                           keyboardType: TextInputType.text,
                           style: const TextStyle(
                             color: Colors.black,
@@ -123,10 +140,37 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                             const Spacer(),
                             Text(
-                              data['seats'],
+                              data.values.elementAt(index)['seats'].toString(),
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            const Text(
+                              "Selected Seats",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const Spacer(),
+                            Text(
+                              data.values
+                                  .elementAt(index)['selectedSeats']
+                                  .toString(),
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -197,7 +241,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         Row(
                           children: [
                             Text(
-                              data['date'].toString(),
+                              data.values.elementAt(index)['date'].toString(),
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -214,7 +258,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         Row(
                           children: [
                             Text(
-                              data['time'].toString(),
+                              data.values.elementAt(index)['time'].toString(),
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -245,14 +289,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               width: 100,
                               height: 50,
                               child: TextFormField(
-                                controller: faresController,
+                                initialValue: data.values
+                                    .elementAt(index)['fares']
+                                    .toString(),
+                                // controller: faresController,
                                 keyboardType: TextInputType.number,
                                 style: const TextStyle(
                                   color: Colors.black,
                                 ),
                                 decoration: const InputDecoration(
                                   labelText: "Fares",
-                                  // hintText: "Select From Location",
                                   enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(color: Colors.black),
                                   ),
@@ -270,8 +316,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ],
                         ),
                         const SizedBox(
-                          height: 20,
-                        )
+                          height: 10,
+                        ),
                       ],
                     ),
                   );

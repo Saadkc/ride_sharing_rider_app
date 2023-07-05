@@ -11,6 +11,7 @@ import 'package:location/location.dart' as loc;
 import 'package:rider/screens/ride/request_ride_screen.dart';
 
 import '../assistants/assistant_methods.dart';
+import '../screens/booked Rides/booking.dart';
 import '../screens/schedule history/add_schedule.dart';
 import '../global/global.dart';
 
@@ -363,7 +364,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(
-              height: 100,
+              height: 200,
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: Colors.black87,
@@ -440,6 +441,15 @@ class _HomeTabPageState extends State<HomeTabPage> {
                             child: const Text("Add Schedule")),
                       ],
                     ),
+                      ElevatedButton(
+                            onPressed: () async {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const BookingScreen()));
+                            },
+                            child: const Text("Booked Rides")),
                   ],
                 ),
               )),

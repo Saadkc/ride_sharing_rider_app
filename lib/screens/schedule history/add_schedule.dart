@@ -45,7 +45,6 @@ class _AddScheduleState extends State<AddSchedule> {
                       .ref()
                       .child("schedule")
                       .child(currentFirebaseUser!.uid)
-                      .push()
                       .set({
                     "fromLocation": fromLocation.text,
                     "toLocation": toLocation.text,
@@ -60,6 +59,10 @@ class _AddScheduleState extends State<AddSchedule> {
                         .format(context)
                         .toString(),
                     "fares": faresController.text,
+                    "availableSeats": selectedSeats,
+                    "driver_id": currentFirebaseUser!.uid,
+                    "driver_name": userModelCurrentInfo!.name,
+                    "driver_phone": userModelCurrentInfo!.phone,
                   }).then((value) {
                     Fluttertoast.showToast(msg: "Schedule Submitted");
                     Navigator.pop(context);
@@ -97,7 +100,6 @@ class _AddScheduleState extends State<AddSchedule> {
                   decoration: const InputDecoration(
                     suffixIcon: Icon(Icons.location_on_outlined),
                     labelText: "Add Pickup Location",
-                    // hintText: "Select From Location",
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.black),
                     ),
@@ -120,7 +122,6 @@ class _AddScheduleState extends State<AddSchedule> {
                   decoration: const InputDecoration(
                     suffixIcon: Icon(Icons.location_on_outlined),
                     labelText: "Add Dropoff Location",
-                    // hintText: "Select From Location",
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.black),
                     ),
